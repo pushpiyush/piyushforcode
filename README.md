@@ -45,8 +45,8 @@ I believe in:
 
 ## 📈 GitHub Stats (Because Numbers Are Still Impressive)  
 
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=piyushforcode &show_icons=true&theme=dark&hide_border=true&count_private=true)  
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=piyushforcode &theme=dark&hide_border=true&layout=compact)  
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=piyushforcode&show_icons=true&theme=dark&hide_border=true&count_private=true)  
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=piyushforcode&theme=dark&hide_border=true&layout=compact)  
 
 ---
 
