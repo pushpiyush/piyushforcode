@@ -32,7 +32,7 @@ async function startScraping() {
 
 async function scraper() {
 	
-	await new Promise(res => setTimeout(res, 500));
+	//await new Promise(res => setTimeout(res, 500));
 	
     const qcNodes = document.querySelectorAll(".question-component");
     for (const node of qcNodes) {
@@ -41,22 +41,22 @@ async function scraper() {
 		const ansButton = [...node.querySelectorAll('button')].find(el => el.innerText.includes('Check Answer'));
 		ansButton.click();
 		
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise(res => setTimeout(res, 1000));
 		
 		if (ops.length === 0) {
 			qType = "numerical";
 			options = null;
-			ansText = [...node.querySelectorAll('div')].find(el => el.innerText.includes('Correct answer is')).innerText;
-			answer = ansText.match(/[\d.]+/)[0];
+			ansText = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Answer'))?.nextElementSibling?.innerText || "N/A";
+			answer = ansText.match(/[\d.]+/)?.[0] || `ansText: ${ansText} and answer: ${answer}. anserror`;
 			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML || "N/A";
 		} else {
 			const op = ops[0].querySelectorAll(".grow.question");
 			qType = "mcq";
 			options = [];
-			op.forEach((el) => options.push(el.innerText));
+			op.forEach((el) => options.push(el.innerHTML));
 			ansText = [...node.getElementsByClassName("options")[0].querySelectorAll("div")].find(el => el.innerText.includes('Correct Answer'))?.innerText[0];
 			answer = abcd.indexOf(ansText);
-			if (answer == -1) {answer = ""};
+			if (answer == -1) {answer = `ansText: ${ansText} and answer: ${answer}. anserror`};
 			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML || "N/A";
 		}
 
