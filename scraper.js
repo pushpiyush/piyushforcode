@@ -1,14 +1,41 @@
 const targetQ = 75;
 const allQuestions = [];
 const abcd = ['A', 'B', 'C', 'D'];
-let len, subject, qType, options, solution, answer;
+let len, subject, qType, options, solution, answer, ansText;
+
+async function startScraping() {
+    while (allQuestions.length < targetQ) {
+        console.log(`Scraping page... Current count: ${allQuestions.length}`);
+        await scraper();
+        
+        const nextButton = [...document.querySelectorAll('a')].find(el => el.innerText.includes('NEXT'));
+        if (!nextButton || allQuestions.length >= targetQ) break;
+        
+        nextButton.click();
+        await new Promise(res => setTimeout(res, 3000)); // Wait for page load
+    }
+    console.log("Finished!", allQuestions);
+
+	// Download as JSON
+    const blob = new Blob([JSON.stringify(allQuestions, null, 4)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jm2026080402.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    console.log(`Done! ${allQuestions.length} questions downloaded.`);
+
+}
+
 
 async function scraper() {
 	
 	await new Promise(res => setTimeout(res, 2000));
 	
     const qcNodes = document.querySelectorAll(".question-component");
-    qcNodes.forEach((node) => {
+    for (const node of qcNodes) {
         const question = node.querySelector('[class="question xl:text-lg px-4 py-2.5"]').innerHTML;
 		const op = node.getElementsByClassName("options")[0].querySelectorAll(".grow.question");
 		const ansButton = [...node.querySelectorAll('button')].find(el => el.innerText.includes('Check Answer'));
@@ -19,16 +46,17 @@ async function scraper() {
 		if (op.length==0) {
 			qType = "numerical";
 			options = null;
-			const ansText = [...node.querySelectorAll('div')].find(el => el.innerText.includes('Correct answer is')).innerText;
+			ansText = [...node.querySelectorAll('div')].find(el => el.innerText.includes('Correct answer is')).innerText;
 			answer = ansText.match(/[\d.]+/)[0];
-			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML:"N/A";
+			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML || "N/A";
 		} else {
 			qType = "mcq";
 			options = [];
-			op.forEach((el) => options.push(el.innerText); );
-			const ansText = [...node.getElementsByClassName("options")[0].querySelectorAll("div")].find(el => el.innerText.includes('Correct Answer'))?.innerText[0];
+			op.forEach((el) => options.push(el.innerText));
+			ansText = [...node.getElementsByClassName("options")[0].querySelectorAll("div")].find(el => el.innerText.includes('Correct Answer'))?.innerText[0];
 			answer = abcd.indexOf(ansText);
-			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML:"N/A";
+			if (answer == -1) {answer = ""};
+			solution = [...node.querySelectorAll('h2')].find(el => el.innerText.includes('Explanation'))?.nextElementSibling?.innerHTML || "N/A";
 		}
 
 		len = allQuestions.length;
@@ -51,9 +79,5 @@ async function scraper() {
 			"solution": solution
 		});
 		
-    });
-
-	const nextButton = [...document.querySelectorAll('a')].find(el => el.innerText.includes('NEXT'));
-    if (!nextButton) { console.log("No NEXT button found."); break; }
-    nextButton.click();
+    }
 }
